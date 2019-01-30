@@ -1,5 +1,9 @@
 // Dum,Dum,Dum... no generator!!
 // First, well, this is an Express app. Maybe we should
+
+const fs = require('fs');
+
+
 // get... Express
 const express = require('express');
 // Make an express app
@@ -12,6 +16,12 @@ const config = require('./config');
 // app.use means, add some middleware!
 // middelware = any function that has access to req and res
 app.use(helmet());
+
+
+const multer = require('multer');
+const upload = multer({dest: 'public/'})
+
+
 
 const sessionOptions ={
   secret: config.sessionSecret,
@@ -44,6 +54,8 @@ app.use(express.static('public'));
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+
 
 
 
@@ -249,6 +261,28 @@ app.post('/loginProcess', (req,res,next)=>{
 app.get('/logout',(req,res,next)=>{
     req.session.destroy();
     res.redirect('/login?msg=loggedOut')
+})
+
+
+app.get('/uploadAnimal', (req,res,next)=>{
+    res.render('uploadAnimal', {});
+})
+
+app.post('/formSubmit',upload.single('imageToUpload'), (req,res,next)=>{
+    // get the animal name from req.body ... ?
+    // get the image from ... ?
+    // res.json(req.file);
+
+
+    // the file is in req.file, but it is in binary
+    // 1. get the temp path /location of our file on this server
+    // 2. set up the new target path / where we actualy want it (i.e. original name might be useful here)
+    // 3. we can't read binary, but fs can / have fs read the file
+    // 4. once binary is read, write it to target
+    // 5. insert the name of the file into the DB
+    // 6. redirect home 
+
+    
 })
 
 console.log("App is listening on port 8902");
