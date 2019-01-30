@@ -276,13 +276,42 @@ app.post('/formSubmit',upload.single('imageToUpload'), (req,res,next)=>{
 
     // the file is in req.file, but it is in binary
     // 1. get the temp path /location of our file on this server
-    // 2. set up the new target path / where we actualy want it (i.e. original name might be useful here)
-    // 3. we can't read binary, but fs can / have fs read the file
-    // 4. once binary is read, write it to target
-    // 5. insert the name of the file into the DB
-    // 6. redirect home 
-
     
+    const tempPath = req.file.path;
+
+    // 2. set up the new target path / where we actualy want it (i.e. original name might be useful here)
+    
+    const targetPath = `public/${req.file.originalname}`
+
+    // 3. we can't read binary, but fs can / have fs read the file
+
+    fs.readFile(tempPath, (error,fileContents)=>{
+        if(error){throw error};
+        // 4. once binary is read, write it to target
+        fs.writeFile(targetPath,fileContents,(err)=>{
+            if(err){throw err};
+            // 5. insert the name of the file into the DB
+            const insertQuery = `INSERT INTO animals (id,species,image)
+                VALUES
+                (DEFAULT,?,?);`;
+            connection.query(insertQuery,[req.body.animalName, req.file.originalname],(dbError, dbResults)=>{
+                if(dbError){
+                    throw dbError;
+                }else{
+                    // fs.unlink(tempPath);
+                    // 6. redirect home 
+                    res.redirect('/')
+                }
+        
+            })
+        })
+    })
+
+
+
+
+
+
 })
 
 console.log("App is listening on port 8902");
